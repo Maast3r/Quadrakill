@@ -1,0 +1,35 @@
+{
+    "name": "Quadrakill",
+    "version": "1.0.0",
+    "description": "Play audio clips through discord when league events happen",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Maast3r/Quadrakill.git"
+    },
+    "engines": {
+        "node": ">=20"
+    },
+    "main": "src/index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node src/index.js",
+      "lint": "eslint \"**/*.js\""
+    },
+    "dependencies": {
+      "@discordjs/voice": "^0.16.1",
+      "axios": "^1.6.1",
+      "discord.js": "^14.14.1",
+      "ffmpeg-static": "^5.2.0",
+      "libsodium-wrappers": "^0.7.13"
+    },
+    "devDependencies": {
+      "eslint": "^8.53.0",
+      "eslint-config-airbnb-base": "^15.0.0",
+      "eslint-plugin-import": "^2.29.0"
+    },
+    "keywords": [],
+    "author": "maast3r",
+    "license": "MIT"
+}
+  
