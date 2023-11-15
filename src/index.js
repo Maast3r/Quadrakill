@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import {
@@ -11,92 +10,126 @@ import { join } from 'node:path';
 
 const LEAGUE_GAME_URL = 'https://127.0.0.1:2999/';
 const LEAGUE_GAME_EVENTS_ENDPOINT = '/liveclientdata/eventdata';
+
 const DISCORD_SERVER_ID = '134514320578052096';
 const DISCORD_CHANNEL_ID = '472224402113560586';
 const POLL_RATE = 1_000;
 
 const GAME_EVENTS_TO_AUDIO = {
-    GameStart: './sound-clips/quadraaa-kill.mp3',
-    MinionsSpawning: './sound-clips/quadraaa-kill.mp3',
-    FirstBrick: './sound-clips/quadraaa-kill.mp3',
-    TurretKilled: './sound-clips/quadraaa-kill.mp3',
-    InhibKilled: './sound-clips/quadraaa-kill.mp3',
-    DragonKill: './sound-clips/quadraaa-kill.mp3',
-    DragonKillStolen: './sound-clips/quadraaa-kill.mp3',
-    DragonKillElder: './sound-clips/quadraaa-kill.mp3',
-    DragonKillElderStolen: './sound-clips/quadraaa-kill.mp3',
-    HeraldKill: './sound-clips/quadraaa-kill.mp3',
-    HeraldKillStolen: './sound-clips/quadraaa-kill.mp3',
-    BaronKill: './sound-clips/quadraaa-kill.mp3',
-    BaronKillStolen: './sound-clips/quadraaa-kill.mp3',
-    ChampionKill: './sound-clips/quadraaa-kill.mp3',
-    MultiKill2: './sound-clips/quadraaa-kill.mp3',
-    MultiKill3: './sound-clips/quadraaa-kill.mp3',
-    MultiKill4: './sound-clips/quadraaa-kill.mp3',
-    MultiKill5: './sound-clips/quadraaa-kill.mp3',
-    Ace: './sound-clips/quadraaa-kill.mp3',
-    FirstBlood: './sound-clips/quadraaa-kill.mp3',
+    // GameStart: './sound-clips/quadraaa-kill.mp3', // for testing
+    // MinionsSpawning: './sound-clips/quadraaa-kill.mp3', // for testing
+    GameStart: '',
+    MinionsSpawning: '',
+    FirstBrick: '',
+    TurretKilled: '',
+    InhibKilled: '',
+    DragonKill: '',
+    DragonKillStolen: '',
+    DragonKillElder: '',
+    DragonKillElderStolen: './sound-clips/40IQ.mp3',
+    HeraldKill: '',
+    HeraldKillStolen: './sound-clips/40IQ.mp3',
+    BaronKill: '',
+    BaronKillStolen: './sound-clips/40IQ.mp3',
+    ChampionKill: '',
+    Multikill2: './sound-clips/double-kill.mp3',
+    Multikill3: './sound-clips/oh-baby-a-triple.mp3',
+    Multikill4: './sound-clips/quadraaa-kill.mp3',
+    Multikill5: './sound-clips/penta-kill.mp3',
+    Ace: '',
+    FirstBlood: './sound-clips/faker-what-was-that.mp3',
 };
+const ELIGIBLE_PLAYERS = new Set([
+    'Mike Cheek',
+    'baseballover723',
+    'Doomerdinger',
+]);
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
-const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+const discordClient = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
+});
 
+let channel;
+let connection;
 let player;
-let subscription; // idk if i actually need this here
-let lastIndexRead = 0; 
-const audioQueue = [];
+let lastIndexRead = 0;
 let isIdle = true;
+const audioQueue = [];
 
 axios.defaults.baseURL = LEAGUE_GAME_URL;
 
 const pollLeagueGameClient = async () => {
-    const eventData = await axios.get(LEAGUE_GAME_EVENTS_ENDPOINT).then((response) => {
-        return response.data;
-    }).catch(() => {
-        lastIndexRead = 0; // not in game, reset event counter
-    });
-    
-    if (eventData?.Events && lastIndexRead < eventData.Events.length) {
-        for (lastIndexRead; lastIndexRead < eventData.Events.length; lastIndexRead++) {
-            audioQueue.push(getAudioResource(eventData.Events[lastIndexRead]));
+    const eventData = await axios
+        .get(LEAGUE_GAME_EVENTS_ENDPOINT)
+        .then((response) => {
+            return response.data;
+        })
+        .catch(() => {
+            lastIndexRead = 0; // not in game, reset event counter
+        });
 
-            if (isIdle) {
-                player.play(audioQueue.shift());
-            }
+    if (eventData?.Events && lastIndexRead < eventData.Events.length) {
+        for (
+            lastIndexRead;
+            lastIndexRead < eventData.Events.length;
+            lastIndexRead++
+        ) {
+            addToAudioQueue(eventData.Events[lastIndexRead]);
         }
     }
 
     setTimeout(pollLeagueGameClient, POLL_RATE);
 };
 
-const getAudioResource = (event) => {
-    let gameEvent;
-
-    if (event.EventName === 'DragonKill') {
-        const isElder = event.DragonType === 'Elder';
-        const isStolen = event.Stolen === 'True';
-        gameEvent = `${event.EventName}${isElder ? 'Elder' : ''}${isStolen === 't' ? 'Stolen' : ''}`;
-    } else if (event.EventName === 'HeraldKill' || event.eventName === 'BaronKill') {
-        const isStolen = event.Stolen === 'True';
-        gameEvent = `${event.EventName}${isStolen ? 'Stolen' : ''}`;
-    } else if (event.EventName === 'MultiKill') {
-        gameEvent = `${event.eventName}${event.KillStreak}`
-    } else {
-        gameEvent = event.EventName;
-    }
+const getGameEvent = (event) => {
+    console.log('get game event');
     // if executed, it will still have the minion/tower's name as the KillerName
     // eg: SRU_Baron killed Mike Cheek
-    // maybe add something to do with who the killer is for each event?
-
-    return createAudioResource(join(process.cwd(), GAME_EVENTS_TO_AUDIO[gameEvent]));
+    if (event.EventName === 'DragonKill') {
+        const elderString = event.DragonType === 'Elder' ? 'Elder' : '';
+        const stolenString = event.Stolen === 'True' ? 'Stolen' : '';
+        return `${event.EventName}${elderString}${stolenString}`;
+    } else if (
+        event.EventName === 'HeraldKill' ||
+        event.EventName === 'BaronKill'
+    ) {
+        const stolenString = event.Stolen === 'True' ? 'Stolen' : '';
+        return `${event.EventName}${stolenString}`;
+    } else if (event.EventName === 'MultiKill') {
+        return `${event.EventName}${event.KillStreak}`;
+    } else {
+        return event.EventName;
+    }
 };
 
-discordClient.once(Events.ClientReady, async (client) => {
-	console.log(`Ready! Logged in as ${client.user.tag}`);
+const addToAudioQueue = (event) => {
+    const gameEvent = getGameEvent(event);
+    const audioPath = GAME_EVENTS_TO_AUDIO[gameEvent];
+    const isKillEvent = Boolean(event?.KillerName);
 
-    const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
-    const connection = joinVoiceChannel({
+    if (
+        (!isKillEvent && audioPath) ||
+        (isKillEvent && ELIGIBLE_PLAYERS.has(event.KillerName))
+    ) {
+        const audioResource = createAudioResource(
+            join(process.cwd(), audioPath),
+            { inlineVolume: true }
+        );
+        audioResource.volume.setVolume(0.4); // maybe make this configurable per sound file
+        audioQueue.push(audioResource);
+
+        if (isIdle) {
+            console.log('playing:', audioPath);
+            player.play(audioQueue.shift());
+        }
+    }
+};
+
+const joinSketchyCloset = async (client) => {
+    channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
+    connection = joinVoiceChannel({
         channelId: channel.id,
         guildId: DISCORD_SERVER_ID,
         adapterCreator: channel.guild.voiceAdapterCreator,
@@ -104,24 +137,40 @@ discordClient.once(Events.ClientReady, async (client) => {
     });
 
     player = createAudioPlayer();
-    player.play(createAudioResource(join(process.cwd()), '40IQ.mp3')); // need to start it
-    subscription = connection.subscribe(player);
-    // subscription.unsubscribe()
+    player.play(createAudioResource(join(process.cwd()), '40IQ.mp3')); // need to start it, idk why
+    connection.subscribe(player);
 
     player.on(AudioPlayerStatus.Playing, () => {
-        console.log('The audio player has started playing!');
+        isIdle = false;
     });
 
     player.on('error', (error) => {
-        console.error(`Error: ${error.message} with resource ${error.resource.metadata.title}`);
+        console.error(
+            `Error: ${error.message} with resource ${error.resource.metadata.title}`
+        );
     });
 
     player.on(AudioPlayerStatus.Idle, () => {
-        console.log('idleeee');
         isIdle = true;
 
         if (audioQueue.length > 0) {
             player.play(audioQueue.shift());
+        }
+    });
+};
+
+discordClient.once(Events.ClientReady, async (client) => {
+    console.log(`Ready! Logged in as ${client.user.tag}`);
+
+    await joinSketchyCloset(client);
+
+    client.on('voiceStateUpdate', async () => {
+        const hypeBot = channel.members.find((member) => member.user.bot);
+
+        if (channel.members.size <= 1 && hypeBot) {
+            connection.disconnect();
+        } else if (!hypeBot) {
+            await joinSketchyCloset(client);
         }
     });
 

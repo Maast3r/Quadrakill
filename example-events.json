@@ -1,0 +1,113 @@
+{
+    "Events": [
+        {
+            "EventID": 0,
+            "EventName": "GameStart",
+            "EventTime": 0.0
+        },
+        {
+            "EventID": 0,
+            "EventName": "MinionsSpawning",
+            "EventTime": 0.0
+        },
+        {
+            "EventID": 0,
+            "EventName": "FirstBrick",
+            "EventTime": 0.0,
+            "KillerName": "Riot Tuxedo"
+        },
+        {
+            "EventID": 0,
+            "EventName": "TurretKilled",
+            "EventTime": 0.0,
+            "TurretKilled": "Turret_T2_L_03_A",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "InhibKilled",
+            "EventTime": 0.0,
+            "InhibKilled": "Barracks_T2_R1",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "DragonKill",
+            "EventTime": 0.0,
+            "DragonType": "Earth",
+            "Stolen": "False",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "DragonKill",
+            "EventTime": 0.0,
+            "DragonType": "Elder",
+            "Stolen": "False",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "HeraldKill",
+            "EventTime": 0.0,
+            "Stolen": "False",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "BaronKill",
+            "EventTime": 0.0,
+            "Stolen": "False",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "ChampionKill",
+            "EventTime": 0.0,
+            "VictimName": "Riot Gene",
+            "KillerName": "Riot Tuxedo",
+            "Assisters": ["Player 1"]
+        },
+        {
+            "EventID": 0,
+            "EventName": "Multikill",
+            "EventTime": 0.0,
+            "KillerName": "Riot Tuxedo",
+            "KillStreak": 2
+        },
+        {
+            "EventID": 0,
+            "EventName": "Multikill",
+            "EventTime": 0.0,
+            "KillerName": "Riot Tuxedo",
+            "KillStreak": 3
+        },
+        {
+            "EventID": 0,
+            "EventName": "Multikill",
+            "EventTime": 0.0,
+            "KillerName": "Riot Tuxedo",
+            "KillStreak": 4
+        },
+        {
+            "EventID": 0,
+            "EventName": "Multikill",
+            "EventTime": 0.0,
+            "KillerName": "Riot Tuxedo",
+            "KillStreak": 5
+        },
+        {
+            "EventID": 0,
+            "EventName": "Ace",
+            "EventTime": 0.0,
+            "Acer": "Riot Tuxedo",
+            "AcingTeam": "ORDER"
+        }
+    ]
+}
